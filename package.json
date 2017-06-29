@@ -11,7 +11,9 @@
     "start": "node packages/react-scripts/scripts/start.js",
     "test": "node packages/react-scripts/scripts/test.js --env=jsdom",
     "format": "prettier --trailing-comma es5 --single-quote --write 'packages/*/*.js' 'packages/*/!(node_modules)/**/*.js'",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "deploy": "surge build/ custom-react-scripts.surge.sh",
+    "bnd":  "npm run build && npm run deploy"
   },
   "devDependencies": {
     "eslint": "3.19.0",

@@ -22,6 +22,7 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
+const getCustomConfig = require('./get-custom-config');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -35,6 +36,8 @@ const shouldUseRelativeAssetPaths = publicPath === './';
 const publicUrl = publicPath.slice(0, -1);
 // Get environment variables to inject into our app.
 const env = getClientEnvironment(publicUrl);
+//Get custom configuration for injecting plugins, presets and loaders
+const customConfig = getCustomConfig(true);
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
@@ -169,7 +172,7 @@ module.exports = {
           /\.gif$/,
           /\.jpe?g$/,
           /\.png$/,
-        ],
+        ].concat(customConfig.excludedFilesRegex),
         loader: require.resolve('file-loader'),
         options: {
           name: 'static/media/[name].[hash:8].[ext]',
@@ -193,7 +196,10 @@ module.exports = {
         options: {
           // @remove-on-eject-begin
           babelrc: false,
-          presets: [require.resolve('babel-preset-react-app')],
+          presets: [require.resolve('babel-preset-react-app')].concat(
+            customConfig.presets
+          ),
+          plugins: [].concat(customConfig.babelPlugins),
           // @remove-on-eject-end
           compact: true,
         },
@@ -223,6 +229,7 @@ module.exports = {
                     importLoaders: 1,
                     minimize: true,
                     sourceMap: true,
+                    modules: !!customConfig.values.CSS_MODULES,
                   },
                 },
                 {
@@ -254,7 +261,7 @@ module.exports = {
       },
       // ** STOP ** Are you adding a new loader?
       // Remember to add the new extension(s) to the "file" loader exclusion list.
-    ],
+    ].concat(customConfig.loaders),
   },
   plugins: [
     // Makes some environment variables available in index.html.
@@ -349,7 +356,7 @@ module.exports = {
     // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
     // You can remove this if you don't use Moment.js:
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-  ],
+  ].concat(customConfig.plugins),
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
   node: {
