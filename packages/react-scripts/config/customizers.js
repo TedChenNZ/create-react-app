@@ -1,4 +1,4 @@
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var autoprefixer = require('autoprefixer');
 
 module.exports = {
   BABEL_STAGE_0: {
@@ -19,53 +19,115 @@ module.exports = {
     getDev: function() {
       return {
         test: /(\.scss|\.sass)$/,
-        loader: 'style!css!postcss!sass',
+        use: ['sass-loader'],
       };
     },
     getProd: function() {
       return {
         test: /(\.scss|\.sass)$/,
-        loader: ExtractTextPlugin.extract('style', 'css!postcss!sass'),
+        use: ['sass-loader'],
       };
     },
   },
-  LESS: {
-    toArray: 'loaders',
-    fileRegex: /\.less$/,
-    getDev: function() {
-      return {
-        test: /\.less$/,
-        loader: 'style!css!postcss!less',
-      };
-    },
-    getProd: function() {
-      return {
-        test: /\.less/,
-        loader: ExtractTextPlugin.extract('style', 'css!postcss!less'),
-      };
-    },
-  },
-  STYLUS: {
-    toArray: 'loaders',
-    fileRegex: /\.styl$/,
-    getDev: function() {
-      return {
-        test: /\.styl/,
-        loader: 'style!css!postcss!stylus',
-      };
-    },
-    getProd: function() {
-      return {
-        test: /\.styl/,
-        loader: ExtractTextPlugin.extract('style', 'css!postcss!stylus'),
-      };
-    },
-  },
+  // LESS: {
+  //   toArray: 'loaders',
+  //   fileRegex: /\.less$/,
+  //   getDev: function() {
+  //     return {
+  //       test: /\.less$/,
+  //       loader: 'style!css!postcss!less',
+  //     };
+  //   },
+  //   getProd: function() {
+  //     return {
+  //       test: /\.less/,
+  //       loader: ExtractTextPlugin.extract('style', 'css!postcss!less'),
+  //     };
+  //   },
+  // },
+  // STYLUS: {
+  //   toArray: 'loaders',
+  //   fileRegex: /\.styl$/,
+  //   getDev: function() {
+  //     return {
+  //       test: /\.styl/,
+  //       loader: 'style!css!postcss!stylus',
+  //     };
+  //   },
+  //   getProd: function() {
+  //     return {
+  //       test: /\.styl/,
+  //       loader: ExtractTextPlugin.extract('style', 'css!postcss!stylus'),
+  //     };
+  //   },
+  // },
   CSS_MODULES: {
     config: {
-      dev:
-        'style!css?modules&camelCase&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss',
-      prod: 'style!css?modules&camelCase&-autoprefixer&importLoaders=1!postcss',
+      dev: [
+        require.resolve('style-loader'),
+        {
+          loader: require.resolve('css-loader'),
+          options: {
+            module: true,
+            camelCase: true,
+            importLoaders: 1,
+            localIdentName: '[name]__[local]___[hash:base64:5]',
+            sourceMap: true,
+          },
+        },
+        {
+          loader: require.resolve('postcss-loader'),
+          options: {
+            // Necessary for external CSS imports to work
+            // https://github.com/facebookincubator/create-react-app/issues/2677
+            ident: 'postcss',
+            plugins: () => [
+              require('postcss-flexbugs-fixes'),
+              autoprefixer({
+                browsers: [
+                  '>1%',
+                  'last 4 versions',
+                  'Firefox ESR',
+                  'not ie < 9', // React doesn't support IE8 anyway
+                ],
+                flexbox: 'no-2009',
+              }),
+            ],
+          },
+        },
+      ],
+      prod: [
+        require.resolve('style-loader'),
+        {
+          loader: require.resolve('css-loader'),
+          options: {
+            module: true,
+            camelCase: true,
+            importLoaders: 1,
+            localIdentName: '[name]__[local]___[hash:base64:5]',
+          },
+        },
+        {
+          loader: require.resolve('postcss-loader'),
+          options: {
+            // Necessary for external CSS imports to work
+            // https://github.com/facebookincubator/create-react-app/issues/2677
+            ident: 'postcss',
+            plugins: () => [
+              require('postcss-flexbugs-fixes'),
+              autoprefixer({
+                browsers: [
+                  '>1%',
+                  'last 4 versions',
+                  'Firefox ESR',
+                  'not ie < 9', // React doesn't support IE8 anyway
+                ],
+                flexbox: 'no-2009',
+              }),
+            ],
+          },
+        },
+      ],
     },
   },
 };
